@@ -2,7 +2,9 @@
 
 ## Running
 
-You need `Cargo` installed. Build the project:
+You need `Cargo` installed (https://doc.rust-lang.org/cargo/getting-started/index.html).
+
+Build the project:
 
 ```shell
 $ cargo build

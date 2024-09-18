@@ -6,15 +6,17 @@ pub struct Card {
     pub health: i64,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct Player {
     pub name: &'static str,
     pub mana: i8,
     pub max_mana: i8,
     pub health: i8,
     pub max_health: i8,
+    deck: Deck,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq, Debug)]
 pub struct Deck {
     card_deck: Vec<Card>,
 }
@@ -30,6 +32,26 @@ impl Deck {
 
     pub fn draw(&mut self) -> Option<Card> {
         self.card_deck.pop()
+    }
+}
+
+pub struct Game<'a> {
+    player1: &'a Player,
+    player2: &'a Player,
+    current_player: &'a Player,
+}
+
+impl<'a> Game<'a> {
+    fn current_player(&self) -> &Player {
+        &self.current_player
+    }
+
+    fn next_turn(&mut self) {
+        if self.current_player == self.player1 {
+            self.current_player = self.player2;
+        } else {
+            self.current_player = self.player1;
+        }
     }
 }
 
@@ -50,12 +72,14 @@ mod tests {
             max_mana: max_mana,
             health: health,
             max_health: max_health,
+            deck: Default::default(),
         };
         assert_eq!(player.name, name);
         assert_eq!(player.mana, mana);
         assert_eq!(player.max_mana, max_mana);
         assert_eq!(player.health, health);
         assert_eq!(player.max_health, max_health);
+        assert_eq!(player.deck.deck_size(), 0);
     }
 
     #[test]
@@ -92,5 +116,35 @@ mod tests {
         assert_eq!(card, drawn_card.unwrap_or_default());
         drawn_card = deck.draw();
         assert_eq!(None, drawn_card)
+    }
+
+    #[test]
+    fn create_game_and_play_two_turns() {
+        let player1 = Player {
+            name: "player1",
+            mana: 1,
+            max_mana: 2,
+            health: 3,
+            max_health: 4,
+            deck: Default::default(),
+        };
+        let player2 = Player {
+            name: "player2",
+            mana: 1,
+            max_mana: 2,
+            health: 3,
+            max_health: 4,
+            deck: Default::default(),
+        };
+        let mut game = Game {
+            player1: &player1,
+            player2: &player2,
+            current_player: &player1,
+        };
+        assert_eq!(game.current_player(), &player1);
+        game.next_turn();
+        assert_eq!(game.current_player(), &player2);
+        game.next_turn();
+        assert_eq!(game.current_player(), &player1);
     }
 }
