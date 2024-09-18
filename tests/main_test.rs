@@ -1,4 +1,5 @@
-#[path = "../src/main.rs"] mod main;
+#[path = "../src/main.rs"]
+mod main;
 
 #[cfg(test)]
 mod tests {
@@ -7,6 +8,6 @@ mod tests {
     #[test]
     fn dummy_test() {
         main::main();
-        assert_eq!(true,true);
+        assert_eq!(true, true);
     }
 }
