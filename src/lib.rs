@@ -1,3 +1,4 @@
+#[derive(Debug, PartialEq, Default, Clone)]
 pub struct Card {
     pub name: &'static str,
     pub cost: i8,
@@ -25,6 +26,10 @@ impl Deck {
 
     pub fn deck_size(&self) -> usize {
         self.card_deck.len()
+    }
+
+    pub fn draw(&mut self) -> Option<Card> {
+        self.card_deck.pop()
     }
 }
 
@@ -72,7 +77,7 @@ mod tests {
     }
 
     #[test]
-    fn add_card_to_deck() {
+    fn add_card_to_deck_then_draw() {
         let mut deck: Deck = Default::default();
         assert_eq!(0, deck.deck_size());
         let card = Card {
@@ -81,7 +86,11 @@ mod tests {
             attack: 2,
             health: 3,
         };
-        deck.add_card(card);
+        deck.add_card(card.clone());
         assert_eq!(1, deck.deck_size());
+        let mut drawn_card = deck.draw();
+        assert_eq!(card, drawn_card.unwrap_or_default());
+        drawn_card = deck.draw();
+        assert_eq!(None, drawn_card)
     }
 }
