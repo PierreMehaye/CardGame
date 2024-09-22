@@ -11,9 +11,20 @@ pub struct Player {
     pub name: &'static str,
     pub mana: i8,
     pub max_mana: i8,
-    pub health: i8,
+    pub health: i32,
     pub max_health: i8,
     deck: Deck,
+}
+
+impl Player
+{
+    pub fn is_player_alive(&self) -> bool {
+        self.health > 0
+    }
+
+    pub fn damage(&mut self, damage_done:i32){
+        self.health = self.health - damage_done
+    }
 }
 
 #[derive(Default, PartialEq, Debug)]
@@ -80,6 +91,23 @@ mod tests {
         assert_eq!(player.health, health);
         assert_eq!(player.max_health, max_health);
         assert_eq!(player.deck.deck_size(), 0);
+    }
+
+    #[test]
+    fn player_alive_until_damaged(){
+        let mut player = Player {
+            name: "test",
+            mana: 0,
+            max_mana: 0,
+            health: 2,
+            max_health: 2,
+            deck: Default::default(),
+        };
+        assert_eq!(player.is_player_alive(), true);
+        player.damage(1);
+        assert_eq!(player.is_player_alive(), true);
+        player.damage(1);
+        assert_eq!(player.is_player_alive(), false);
     }
 
     #[test]
