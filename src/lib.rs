@@ -47,22 +47,39 @@ impl Deck {
 }
 
 pub struct Game<'a> {
-    pub player1: &'a Player,
-    pub player2: &'a Player,
-    pub current_player: &'a Player,
+    pub player1: &'a mut Player,
+    pub player2: &'a mut Player,
+    current_turn : i16
 }
 
 impl<'a> Game<'a> {
+    fn current_player_mut(&mut self) -> &mut Player {
+        if self.current_turn % 2 == 0{
+            self.player2
+        }
+        else{
+            self.player1
+        }
+        
+    }
+
     fn current_player(&self) -> &Player {
-        &self.current_player
+        if self.current_turn % 2 == 0{
+            self.player2
+        }
+        else{
+            self.player1
+        }
+        
     }
 
     fn next_turn(&mut self) {
-        if self.current_player == self.player1 {
-            self.current_player = self.player2;
-        } else {
-            self.current_player = self.player1;
+        self.current_turn +=1;
+        let current_player = self.current_player_mut();
+        if current_player.max_mana <= 10{
+            current_player.max_mana +=1;
         }
+        current_player.mana = current_player.max_mana;
     }
 }
 
@@ -71,7 +88,7 @@ fn display_player(player: &Player){
 }
 
 fn display_current_turn(game: &Game){
-    println!("Current turn : {}", game.current_player.name)
+    println!("Current turn : {}", game.current_player().name)
 }
 
 fn display_split(){
@@ -170,31 +187,37 @@ mod tests {
 
     #[test]
     fn create_game_and_play_two_turns() {
-        let player1 = Player {
+        let mut player1 = Player {
             name: "player1",
             mana: 1,
-            max_mana: 2,
+            max_mana: 1,
             health: 3,
             max_health: 4,
             deck: Default::default(),
         };
-        let player2 = Player {
+        let mut player2 = Player {
             name: "player2",
-            mana: 1,
-            max_mana: 2,
+            mana: 0,
+            max_mana: 0,
             health: 3,
             max_health: 4,
             deck: Default::default(),
         };
         let mut game = Game {
-            player1: &player1,
-            player2: &player2,
-            current_player: &player1,
+            player1: &mut player1,
+            player2: &mut player2,
+            current_turn: 1
         };
-        assert_eq!(game.current_player(), &player1);
+        assert_eq!(game.current_player().name, "player1");
+        assert_eq!(game.current_player().mana, 1);
+        assert_eq!(game.current_player().max_mana, 1);
         game.next_turn();
-        assert_eq!(game.current_player(), &player2);
+        assert_eq!(game.current_player().name, "player2");
+        assert_eq!(game.current_player().mana, 1);
+        assert_eq!(game.current_player().max_mana, 1);
         game.next_turn();
-        assert_eq!(game.current_player(), &player1);
+        assert_eq!(game.current_player().name, "player1");
+        assert_eq!(game.current_player().mana, 2);
+        assert_eq!(game.current_player().max_mana, 2);
     }
 }
