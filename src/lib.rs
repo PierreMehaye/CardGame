@@ -49,7 +49,7 @@ impl Deck {
 pub struct Game<'a> {
     pub player1: &'a mut Player,
     pub player2: &'a mut Player,
-    current_turn : i16
+    pub current_turn : i16
 }
 
 impl<'a> Game<'a> {
@@ -84,7 +84,7 @@ impl<'a> Game<'a> {
 }
 
 fn display_player(player: &Player){
-    println!("{}:{} HP", player.name, player.health)
+    println!("{} : {} HP", player.name, player.health)
 }
 
 fn display_current_turn(game: &Game){
