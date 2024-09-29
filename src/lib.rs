@@ -13,7 +13,7 @@ pub struct Player {
     pub max_mana: i8,
     pub health: i32,
     pub max_health: i8,
-    deck: Deck,
+    pub deck: Deck,
 }
 
 impl Player
@@ -47,9 +47,9 @@ impl Deck {
 }
 
 pub struct Game<'a> {
-    player1: &'a Player,
-    player2: &'a Player,
-    current_player: &'a Player,
+    pub player1: &'a Player,
+    pub player2: &'a Player,
+    pub current_player: &'a Player,
 }
 
 impl<'a> Game<'a> {
@@ -64,6 +64,28 @@ impl<'a> Game<'a> {
             self.current_player = self.player1;
         }
     }
+}
+
+fn display_player(player: &Player){
+    println!("{}:{} HP", player.name, player.health)
+}
+
+fn display_current_turn(game: &Game){
+    println!("Current turn : {}", game.current_player.name)
+}
+
+fn display_split(){
+    println!("--------------------------------")
+}
+
+pub fn display_game(game: &Game){
+    display_split();
+    display_player(game.player1);
+    display_split();
+    display_player(game.player2);
+    display_split();
+    display_current_turn(&game);
+    display_split();
 }
 
 #[cfg(test)]
@@ -101,7 +123,7 @@ mod tests {
             max_mana: 0,
             health: 2,
             max_health: 2,
-            deck: Default::default(),
+            deck: Default::default()
         };
         assert_eq!(player.is_player_alive(), true);
         player.damage(1);
