@@ -1,3 +1,6 @@
+const END_TURN: i8 = 1;
+const SURRENDER: i8 = 2;
+
 #[derive(Debug, PartialEq, Default, Clone)]
 pub struct Card {
     pub name: &'static str,
@@ -6,7 +9,7 @@ pub struct Card {
     pub health: i64,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Debug)]
 pub struct Player {
     pub name: &'static str,
     pub mana: i8,
@@ -24,6 +27,17 @@ impl Player
 
     pub fn damage(&mut self, damage_done:i32){
         self.health = self.health - damage_done
+    }
+
+    pub fn surrender(&mut self){
+        self.health = 0
+    }
+    
+    fn increase_mana(&mut self){
+        if self.max_mana < 10
+        {
+            self.max_mana += 1;
+        }
     }
 }
 
@@ -76,15 +90,43 @@ impl<'a> Game<'a> {
     fn next_turn(&mut self) {
         self.current_turn +=1;
         let current_player = self.current_player_mut();
-        if current_player.max_mana <= 10{
-            current_player.max_mana +=1;
-        }
+        current_player.increase_mana();
         current_player.mana = current_player.max_mana;
+    }
+
+    pub fn display_current_player_possible_actions(&self)
+    {
+        println!("End your turn : {}", END_TURN);
+        println!("Surrender : {}", SURRENDER);
+    }
+
+    pub fn action(&mut self, action_number : i8){
+        match action_number{
+            END_TURN=>self.next_turn(),
+            SURRENDER=>self.current_player_mut().surrender(),
+            _=>println!("Invalid action number")
+        }
+    }
+
+    pub fn check_for_winner(&self) -> bool{
+        if !self.player1.is_player_alive() && !self.player2.is_player_alive(){
+            println!("Draw");
+            return true;
+        }
+        if !self.player1.is_player_alive() {
+            println!("Player 2 won");
+            return true;
+        }
+        else if !self.player2.is_player_alive(){
+            println!("Player 1 won");
+            return true;
+        }
+        false
     }
 }
 
 fn display_player(player: &Player){
-    println!("{} : {} HP", player.name, player.health)
+    println!("{} : {} HP, mana {}/{}", player.name, player.health, player.mana, player.max_mana)
 }
 
 fn display_current_turn(game: &Game){
@@ -104,6 +146,7 @@ pub fn display_game(game: &Game){
     display_current_turn(&game);
     display_split();
 }
+   
 
 #[cfg(test)]
 mod tests {
@@ -220,4 +263,37 @@ mod tests {
         assert_eq!(game.current_player().mana, 2);
         assert_eq!(game.current_player().max_mana, 2);
     }
+
+    #[test]
+    fn use_action_to_pass_then_surrender(){
+        let mut player1 = Player {
+            name: "player1",
+            mana: 1,
+            max_mana: 1,
+            health: 3,
+            max_health: 4,
+            deck: Default::default(),
+        };
+        let mut player2 = Player {
+            name: "player2",
+            mana: 0,
+            max_mana: 0,
+            health: 3,
+            max_health: 4,
+            deck: Default::default(),
+        };
+        let mut game = Game {
+            player1: &mut player1,
+            player2: &mut player2,
+            current_turn: 1
+        };
+        assert_eq!(game.current_turn, 1);
+        game.action(END_TURN);
+        assert_eq!(game.current_turn, 2);
+        assert_eq!(game.check_for_winner(), false);
+        game.action(SURRENDER);
+        assert_eq!(game.check_for_winner(), true);
+    }
+
+
 }
